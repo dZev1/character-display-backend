@@ -1,0 +1,13 @@
+{
+	"name": "Kaladin",
+	"race": "Human",
+	"stats": {
+		"vitality": 3,
+		"endurance": 8,
+		"mind": 7,
+		"strength": 7,
+		"dexterity": 5,
+		"intelligence": 12,
+		"faith": 7
+	}
+}

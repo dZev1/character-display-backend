@@ -1,0 +1,13 @@
+{
+	"name": "Aragorn",
+	"race": "Human",
+	"stats": {
+		"vitality": 9,
+		"endurance": 11,
+		"mind": 5,
+		"strength": 3,
+		"dexterity": 7,
+		"intelligence": 4,
+		"faith": 12
+	}
+}
