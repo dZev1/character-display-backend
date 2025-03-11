@@ -28,6 +28,7 @@ func main() {
 	http.HandleFunc("/protected", loginHandlers.Protected)
 
 	http.HandleFunc("/upload_character", characterHandlers.UploadCharacter)
+	http.HandleFunc("/get_characters", characterHandlers.GetCharacters)
 	
 	http.ListenAndServe(":8080", nil)
 }

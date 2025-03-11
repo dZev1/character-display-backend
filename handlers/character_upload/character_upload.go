@@ -1,4 +1,4 @@
-package characterupload
+package handlers
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/dZev1/character-display/database"
+	loginHandlers "github.com/dZev1/character-display/handlers/login"
 	"github.com/dZev1/character-display/models"
 )
 
@@ -24,8 +25,14 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := r.FormValue("username")
+	if err := loginHandlers.Authorize(r); err != nil {
+		er := http.StatusUnauthorized
+		http.Error(w,"unauthorized", er)
+		return
+	}
+
 	charJSON := r.FormValue("char_json")
+	username := r.FormValue("username")
 	
 	fmt.Println(string(charJSON))
 
@@ -47,4 +54,24 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "character %v was succesfully added", char.Name)
+}
+
+func GetCharacters(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		err := http.StatusMethodNotAllowed
+		http.Error(w, "method not allowed", err)
+		return
+	}
+
+	username := r.FormValue("username")
+
+	userChars, err := database.GetCharactersFromUser(username)
+	if err != nil {
+		er := http.StatusBadRequest
+		http.Error(w, err.Error(), er)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(userChars)
 }

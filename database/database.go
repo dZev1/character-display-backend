@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/dZev1/character-display/models"
 
@@ -62,16 +63,6 @@ func InsertCharacter(character models.Character, username string) error {
 	return nil
 }
 
-func IsInDatabase(username string) (bool, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)`
-	var exists bool
-	err := db.QueryRow(query, username).Scan(&exists)
-	if err != nil {
-		return false, fmt.Errorf("error checking if user exists: %v", err)
-	}
-	return exists, nil
-}
-
 func InsertUser(username string, hashedPassword string) error {
 	query := `
 		INSERT INTO users(username, hashed_password)
@@ -99,6 +90,43 @@ func GetUser(username string) (models.User, error) {
 	return user, nil
 }
 
+func GetCharactersFromUser(username string) ([]models.Character, error) {
+	query := `
+		SELECT name, race, stats
+		FROM characters
+		WHERE username = $1
+	`
+
+	rows, err := db.Query(query, username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var userChars []models.Character
+
+	for rows.Next() {
+		var char models.Character
+		var statsJSON string
+
+		err := rows.Scan(&char.Name, &char.Race, &statsJSON)
+		if err != nil {
+			return userChars, nil
+		}
+		decoder := json.NewDecoder(strings.NewReader(statsJSON))
+		err = decoder.Decode(&char.Stats)
+		if err != nil {
+            return userChars, err
+        }
+		fmt.Println(char.Name, char.Race, char.Stats)
+		userChars = append(userChars, char)
+	}
+	if err = rows.Err(); err != nil {
+		return userChars, err
+	}
+	return userChars, nil
+}
+
 func UpdateCookies(user models.User) {
 	query := `
 		UPDATE users
@@ -110,4 +138,14 @@ func UpdateCookies(user models.User) {
 	if err != nil {
 		log.Fatalf("could not update cookies: %v", err)
 	}
+}
+
+func IsInDatabase(username string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)`
+	var exists bool
+	err := db.QueryRow(query, username).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("error checking if user exists: %v", err)
+	}
+	return exists, nil
 }
