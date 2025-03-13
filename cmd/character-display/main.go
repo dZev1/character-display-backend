@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/dZev1/character-display/config"
 	"github.com/dZev1/character-display/database"
 	characterHandlers "github.com/dZev1/character-display/handlers/character_upload"
 	loginHandlers "github.com/dZev1/character-display/handlers/login"
@@ -12,7 +13,7 @@ func main() {
 	var err error
 	router := http.NewServeMux()
 
-	connStr, err := config.readConnStrEnv()
+	connStr, err := config.ReadConnStrEnv()
 	if err != nil {
 		panic(err)
 	}

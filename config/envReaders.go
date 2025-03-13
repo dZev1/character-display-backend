@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func readConnStrEnv() (string, error) {
+func ReadConnStrEnv() (string, error) {
 	envFile, err := godotenv.Read(".env")
 	if err != nil {
 		return "", err
