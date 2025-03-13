@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func connStrEnv() (string, error) {
+func readConnStrEnv() (string, error) {
 	envFile, err := godotenv.Read(".env")
 	if err != nil {
 		return "", err

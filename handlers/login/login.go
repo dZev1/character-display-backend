@@ -57,7 +57,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionToken := generateToken(32)
-	csfrToken := generateToken(32)
+	csrfToken := generateToken(32)
 	http.SetCookie(w, &http.Cookie{
 		Name: "session_token",
 		Value: sessionToken,
@@ -66,13 +66,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "csfr_token",
-		Value: csfrToken,
+		Name: "csrf_token",
+		Value: csrfToken,
 		HttpOnly: false,
 	})
 
 	user.SessionToken = sessionToken
-	user.CSFRToken = csfrToken
+	user.CSRFToken = csrfToken
 	database.UpdateCookies(user)
 
 	fmt.Fprintln(w, "login successful")
@@ -91,7 +91,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 	http.SetCookie(w, &http.Cookie{
-		Name: "csfr_token",
+		Name: "csrf_token",
 		Value: "",
 		Expires: time.Now().Add(-time.Hour),
 		HttpOnly: false,
@@ -100,7 +100,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	user, _ := database.GetUser(username)
 	
-	user.CSFRToken = ""
+	user.CSRFToken = ""
 	user.SessionToken = ""
 	
 	database.UpdateCookies(user)

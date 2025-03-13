@@ -10,8 +10,9 @@ import (
 
 func main() {
 	var err error
+	router := http.NewServeMux()
 
-	connStr, err := connStrEnv()
+	connStr, err := config.readConnStrEnv()
 	if err != nil {
 		panic(err)
 	}
@@ -30,5 +31,7 @@ func main() {
 	http.HandleFunc("/upload_character", characterHandlers.UploadCharacter)
 	http.HandleFunc("/get_characters", characterHandlers.GetCharacters)
 	
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", router); err != nil {
+		panic(err);
+	}
 }

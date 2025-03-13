@@ -21,8 +21,8 @@ func Authorize(r *http.Request) error {
 		return AuthError
 	}
 
-	csfrToken := r.Header.Get("X-CSRF-Token")
-	if csfrToken != user.CSFRToken || csfrToken == "" {
+	csrfToken := r.Header.Get("X-CSRF-Token")
+	if csrfToken != user.CSRFToken || csrfToken == "" {
 		return AuthError
 	}
 

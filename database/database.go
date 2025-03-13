@@ -79,11 +79,11 @@ func InsertUser(username string, hashedPassword string) error {
 func GetUser(username string) (models.User, error) {
 	user := models.User{}
 	query := `
-		SELECT username, hashed_password, session_token, csfr_token
+		SELECT username, hashed_password, session_token, csrf_token
 		FROM users 
 		WHERE username = $1;
 	`
-	err := db.QueryRow(query, username).Scan(&user.Username, &user.HashedPassword, &user.SessionToken, &user.CSFRToken)
+	err := db.QueryRow(query, username).Scan(&user.Username, &user.HashedPassword, &user.SessionToken, &user.CSRFToken)
 	if err != nil {
 		return user, fmt.Errorf("could not find user: %v", err)
 	}
@@ -130,11 +130,11 @@ func GetCharactersFromUser(username string) ([]models.Character, error) {
 func UpdateCookies(user models.User) {
 	query := `
 		UPDATE users
-		SET session_token=$1, csfr_token=$2
+		SET session_token=$1, csrf_token=$2
 		WHERE username=$3
 	`
 
-	_, err := db.Exec(query, user.SessionToken, user.CSFRToken, user.Username)
+	_, err := db.Exec(query, user.SessionToken, user.CSRFToken, user.Username)
 	if err != nil {
 		log.Fatalf("could not update cookies: %v", err)
 	}
