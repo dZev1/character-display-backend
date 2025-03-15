@@ -90,14 +90,25 @@ func GetUser(username string) (models.User, error) {
 	return user, nil
 }
 
-func GetCharactersFromUser(username string) ([]models.Character, error) {
-	query := `
+func GetCharactersByField(field, value string) ([]models.Character, error) {
+	allowedFields := map[string]bool{
+		"username": true,
+		"name" : true,
+		"race":     true,
+		"class":    true,
+	}
+
+	if !allowedFields[field] {
+		return nil, fmt.Errorf("field not allowed")
+	}
+
+	query := fmt.Sprintf(`
 		SELECT name, race, stats
 		FROM characters
-		WHERE username = $1
-	`
+		WHERE %s = $1
+	`, field)
 
-	rows, err := db.Query(query, username)
+	rows, err := db.Query(query, value)
 	if err != nil {
 		return nil, err
 	}
@@ -127,11 +138,35 @@ func GetCharactersFromUser(username string) ([]models.Character, error) {
 	return userChars, nil
 }
 
+func UpdateCharacter(username, characterName string, newData map[string]interface{}) error {
+	var newStatsJSON bytes.Buffer
+
+	newRace := newData["race"]
+	encoder := json.NewEncoder(&newStatsJSON)
+	err := encoder.Encode(newData["stats"])
+	if err != nil {
+		return fmt.Errorf("new data could not be parsed: %v", err)
+	}
+
+	query := `
+		UPDATE characters
+		SET race = $1, stats = $2
+		WHERE username = $3 AND name = $4
+	`
+
+	_, err = db.Exec(query, newRace, newStatsJSON, username, characterName)
+	if err != nil {
+		return fmt.Errorf("could not find character: %v", err)
+	}
+
+	return nil
+}
+
 func UpdateCookies(user models.User) {
 	query := `
 		UPDATE users
-		SET session_token=$1, csrf_token=$2
-		WHERE username=$3
+		SET session_token = $1, csrf_token = $2
+		WHERE username = $3
 	`
 
 	_, err := db.Exec(query, user.SessionToken, user.CSRFToken, user.Username)

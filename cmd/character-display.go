@@ -24,13 +24,14 @@ func main() {
 	}
 	defer database.CloseDB()
 
-	http.HandleFunc("/register", loginHandlers.Register)
-	http.HandleFunc("/login", loginHandlers.Login)
-	http.HandleFunc("/logout", loginHandlers.Logout)
-	http.HandleFunc("/protected", loginHandlers.Protected)
+	router.HandleFunc("POST /register", loginHandlers.Register)
+	router.HandleFunc("POST /login", loginHandlers.Login)
+	router.HandleFunc("POST /logout", loginHandlers.Logout)
+	router.HandleFunc("POST /protected", loginHandlers.Protected)
 
-	http.HandleFunc("/upload_character", characterHandlers.UploadCharacter)
-	http.HandleFunc("/get_characters", characterHandlers.GetCharacters)
+	router.HandleFunc("POST /upload_character", characterHandlers.UploadCharacter)
+	router.HandleFunc("GET /get_characters", characterHandlers.GetCharacters)
+	router.HandleFunc("PUT /modify_character", characterHandlers.ModifyCharacter)
 	
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err);

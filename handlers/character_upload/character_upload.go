@@ -33,8 +33,6 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 
 	charJSON := r.FormValue("char_json")
 	username := r.FormValue("username")
-	
-	fmt.Println(string(charJSON))
 
 	var char models.Character
 	decoder := json.NewDecoder(strings.NewReader(charJSON))
@@ -63,9 +61,10 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := r.FormValue("username")
+	field := r.FormValue("field")
+	value := r.FormValue("value")
 
-	userChars, err := database.GetCharactersFromUser(username)
+	userChars, err := database.GetCharactersByField(field, value)
 	if err != nil {
 		er := http.StatusBadRequest
 		http.Error(w, err.Error(), er)
@@ -74,4 +73,10 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(userChars)
+}
+
+
+func ModifyCharacter(w http.ResponseWriter, r *http.Request) {
+	var x int = 0
+	fmt.Printf("%v",x)
 }
