@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/dZev1/character-display/models"
@@ -138,31 +137,27 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 	return userChars, nil
 }
 
-func UpdateCharacter(username, characterName string, newData map[string]interface{}) error {
-	var newStatsJSON bytes.Buffer
-
-	newRace := newData["race"]
-	encoder := json.NewEncoder(&newStatsJSON)
-	err := encoder.Encode(newData["stats"])
-	if err != nil {
-		return fmt.Errorf("new data could not be parsed: %v", err)
-	}
-
+func GetCharacter(username, charName string) (models.Character, error) {
+	var ret models.Character
+	var statsJSON string
 	query := `
-		UPDATE characters
-		SET race = $1, stats = $2
-		WHERE username = $3 AND name = $4
+		SELECT name, race, stats FROM characters
+		WHERE username = $1 AND name = $2
 	`
-
-	_, err = db.Exec(query, newRace, newStatsJSON, username, characterName)
+	err := db.QueryRow(query, username, charName).Scan(&ret.Name, &ret.Race, &statsJSON)
 	if err != nil {
-		return fmt.Errorf("could not find character: %v", err)
+		return ret, err
+	}
+	decoder := json.NewDecoder(strings.NewReader(statsJSON))
+	err = decoder.Decode(&ret.Stats)
+	if err != nil {
+		return ret, err
 	}
 
-	return nil
+	return ret, nil
 }
 
-func UpdateCookies(user models.User) {
+func UpdateCookies(user models.User) error {
 	query := `
 		UPDATE users
 		SET session_token = $1, csrf_token = $2
@@ -171,8 +166,24 @@ func UpdateCookies(user models.User) {
 
 	_, err := db.Exec(query, user.SessionToken, user.CSRFToken, user.Username)
 	if err != nil {
-		log.Fatalf("could not update cookies: %v", err)
+		return fmt.Errorf("could not update cookies: %v", err)
 	}
+	return nil
+}
+
+func UpdateCharacter(username string, character models.Character) error {
+	query := `
+		UPDATE characters
+		SET race = $1, stats $2
+		WHERE username = $3 AND name = $4
+	`
+
+	_, err := db.Exec(query, character.Race, character.Stats, username, character.Name)
+	if err != nil {
+		return fmt.Errorf("could not update character: %v", err)
+	}
+	
+	return nil
 }
 
 func IsInDatabase(username string) (bool, error) {

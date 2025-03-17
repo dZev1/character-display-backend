@@ -30,8 +30,9 @@ func main() {
 	router.HandleFunc("POST /protected", loginHandlers.Protected)
 
 	router.HandleFunc("POST /upload_character", characterHandlers.UploadCharacter)
-	router.HandleFunc("GET /get_characters", characterHandlers.GetCharacters)
-	router.HandleFunc("PUT /modify_character", characterHandlers.ModifyCharacter)
+	router.HandleFunc("GET /get_character", characterHandlers.GetCharacters)
+	router.HandleFunc("GET /edit_character", characterHandlers.EditCharacter)
+	router.HandleFunc("PUT /edit_character", characterHandlers.EditCharacter)
 	
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err);

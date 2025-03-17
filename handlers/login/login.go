@@ -73,7 +73,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	user.SessionToken = sessionToken
 	user.CSRFToken = csrfToken
-	database.UpdateCookies(user)
+
+	err := database.UpdateCookies(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	fmt.Fprintln(w, "login successful")
 }
@@ -103,7 +108,11 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	user.CSRFToken = ""
 	user.SessionToken = ""
 	
-	database.UpdateCookies(user)
+	err := database.UpdateCookies(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	fmt.Fprintln(w, "logged out succesfully.")
 }

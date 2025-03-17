@@ -12,12 +12,6 @@ import (
 )
 
 func UploadCharacter(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "method not allowed", err)
-		return
-	}
-
 	err := r.ParseMultipartForm(10<<20)
 	if err != nil {
 		er := http.StatusBadRequest
@@ -34,11 +28,7 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 	charJSON := r.FormValue("char_json")
 	username := r.FormValue("username")
 
-	var char models.Character
-	decoder := json.NewDecoder(strings.NewReader(charJSON))
-	decoder.DisallowUnknownFields()
-
-	err = decoder.Decode(&char)
+	char, err := jsonToChar(charJSON)
 	if err != nil {
 		er := http.StatusBadRequest
 		http.Error(w, err.Error(), er)
@@ -55,12 +45,6 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCharacters(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "method not allowed", err)
-		return
-	}
-
 	field := r.FormValue("field")
 	value := r.FormValue("value")
 
@@ -76,7 +60,52 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func ModifyCharacter(w http.ResponseWriter, r *http.Request) {
-	var x int = 0
-	fmt.Printf("%v",x)
+func EditCharacter(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	charName := r.FormValue("char_name")
+
+	loginHandlers.Authorize(r)
+
+	if r.Method == http.MethodGet {
+		char, err := database.GetCharacter(username, charName)
+		if err != nil {
+			er := http.StatusConflict
+			http.Error(w, err.Error(), er)
+			return
+		}
+		
+		encoder := json.NewEncoder(w)
+		err = encoder.Encode(char)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	if r.Method == http.MethodPut {
+		charJSON := r.FormValue("char_json")
+		
+		char, err := jsonToChar(charJSON)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = database.UpdateCharacter(username, char)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+
+}
+
+func jsonToChar(charJSON string) (models.Character, error) {
+	var char models.Character
+	decoder := json.NewDecoder(strings.NewReader(charJSON))
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(&char)
+	return char, err
 }
