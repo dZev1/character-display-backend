@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dZev1/character-display/database"
+	"github.com/dZev1/character-display/utils"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +32,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, _ := hashPassword(password)
+	hashedPassword, _ := utils.HashPassword(password)
 	er := database.InsertUser(username, hashedPassword)
 	if er != nil {
 		http.Error(w, "could not insert user", http.StatusInternalServerError)
@@ -50,14 +51,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	
 	user, _ := database.GetUser(username)
-	if ok, _ := database.IsInDatabase(username); !ok || checkPasswordHash(user.HashedPassword, password) {
+	if ok, _ := database.IsInDatabase(username); !ok || utils.CheckPasswordHash(user.HashedPassword, password) {
 		err := http.StatusUnauthorized
 		http.Error(w, "user not found", err)
 		return
 	}
 
-	sessionToken := generateToken(32)
-	csrfToken := generateToken(32)
+	sessionToken := utils.GenerateToken(32)
+	csrfToken := utils.GenerateToken(32)
 	http.SetCookie(w, &http.Cookie{
 		Name: "session_token",
 		Value: sessionToken,

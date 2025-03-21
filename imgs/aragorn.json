@@ -4,10 +4,10 @@
 	"stats": {
 		"vitality": 9,
 		"endurance": 11,
-		"mind": 5,
+		"mind": 8,
 		"strength": 3,
-		"dexterity": 7,
+		"dexterity": 6,
 		"intelligence": 4,
-		"faith": 12
+		"faith": 0
 	}
 }

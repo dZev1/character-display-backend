@@ -33,6 +33,7 @@ func main() {
 	router.HandleFunc("GET /get_character", characterHandlers.GetCharacters)
 	router.HandleFunc("GET /edit_character", characterHandlers.EditCharacter)
 	router.HandleFunc("PUT /edit_character", characterHandlers.EditCharacter)
+	router.HandleFunc("DELETE /delete_character", characterHandlers.DeleteCharacter)
 	
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err);

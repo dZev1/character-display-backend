@@ -62,7 +62,7 @@ func InsertCharacter(character models.Character, username string) error {
 	return nil
 }
 
-func InsertUser(username string, hashedPassword string) error {
+func InsertUser(username, hashedPassword string) error {
 	query := `
 		INSERT INTO users(username, hashed_password)
 		VALUES ($1, $2)
@@ -71,6 +71,19 @@ func InsertUser(username string, hashedPassword string) error {
 	_, err := db.Exec(query, username, hashedPassword)
 	if err != nil {
 		return fmt.Errorf("could not execute statement: %v", err)
+	}
+	return nil
+}
+
+func DeleteCharacter(username, charName string) error {
+	query := `
+		DELETE FROM characters
+		WHERE username = $1 AND name = $2
+	`
+
+	_, err := db.Exec(query, username, charName)
+	if err != nil {
+		return fmt.Errorf("could not find character: %v", err)
 	}
 	return nil
 }
@@ -172,13 +185,20 @@ func UpdateCookies(user models.User) error {
 }
 
 func UpdateCharacter(username string, character models.Character) error {
+	var statsJSON bytes.Buffer
+	encoder := json.NewEncoder(&statsJSON)
+	err := encoder.Encode(character.Stats)
+	if err != nil {
+		return fmt.Errorf("could not encode stats: %v", err)
+	}
+
 	query := `
 		UPDATE characters
-		SET race = $1, stats $2
+		SET race = $1, stats = $2
 		WHERE username = $3 AND name = $4
 	`
-
-	_, err := db.Exec(query, character.Race, character.Stats, username, character.Name)
+	
+	_, err = db.Exec(query, character.Race, statsJSON.String(), username, character.Name)
 	if err != nil {
 		return fmt.Errorf("could not update character: %v", err)
 	}
