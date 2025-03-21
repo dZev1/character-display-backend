@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dZev1/character-display/models"
+	"github.com/dZev1/character-display/utils"
 
 	_ "github.com/lib/pq"
 )
@@ -49,13 +50,8 @@ func InsertCharacter(character models.Character, username string) error {
 		INSERT INTO	characters(username, name, race, stats)
 		VALUES ($1, $2, $3, $4)
 	`
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return fmt.Errorf("could not prepare statement: %v", err)
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(username, character.Name, character.Race, statsJSON.String())
+	
+	_, err = db.Exec(query, username, character.Name, character.Race, statsJSON.String())
 	if err != nil {
 		return fmt.Errorf("could not execute statement: %v", err)
 	}
@@ -102,6 +98,20 @@ func GetUser(username string) (models.User, error) {
 	return user, nil
 }
 
+func GetAllCharacters() ([]models.Character, error) {
+	query := `SELECT name, race, stats FROM characters`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("could not fetch data: %v", err)
+	}
+	defer rows.Close()
+
+	userChars, err := utils.GetUserCharacters(rows)
+
+	return userChars, err 
+}
+
 func GetCharactersByField(field, value string) ([]models.Character, error) {
 	allowedFields := map[string]bool{
 		"username": true,
@@ -122,32 +132,13 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 
 	rows, err := db.Query(query, value)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not fetch data: %v", err)
 	}
 	defer rows.Close()
 
-	var userChars []models.Character
+	userChars, err := utils.GetUserCharacters(rows)
 
-	for rows.Next() {
-		var char models.Character
-		var statsJSON string
-
-		err := rows.Scan(&char.Name, &char.Race, &statsJSON)
-		if err != nil {
-			return userChars, nil
-		}
-		decoder := json.NewDecoder(strings.NewReader(statsJSON))
-		err = decoder.Decode(&char.Stats)
-		if err != nil {
-            return userChars, err
-        }
-		fmt.Println(char.Name, char.Race, char.Stats)
-		userChars = append(userChars, char)
-	}
-	if err = rows.Err(); err != nil {
-		return userChars, err
-	}
-	return userChars, nil
+	return userChars, err 
 }
 
 func GetCharacter(username, charName string) (models.Character, error) {

@@ -14,26 +14,24 @@ import (
 )
 
 func UploadCharacter(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(10<<20)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	var err error
 
-	if err := loginHandlers.Authorize(r); err != nil {
+	err = loginHandlers.Authorize(r)
+	if err != nil {
 		http.Error(w,"unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	charJSON := r.FormValue("char_json")
 	username := r.FormValue("username")
-
+	charJSON := r.FormValue("char_json")
+		
 	char, err := utils.JsonToChar(charJSON)
-	char.Name = cases.Title(language.Und , cases.NoLower).String(char.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	char.Name = cases.Title(language.Und , cases.NoLower).String(char.Name)
+	
 
 	err = database.InsertCharacter(char, username)
 	if err != nil {
@@ -57,14 +55,26 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(userChars)
 }
 
+func GetAllCharacters(w http.ResponseWriter, r *http.Request) {
+	chars, err := database.GetAllCharacters()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(chars)
+}
 
 func EditCharacter(w http.ResponseWriter, r *http.Request) {
+	var err error
+	
 	username := r.FormValue("username")
 	charName := r.FormValue("char_name")
 
 	charName = cases.Title(language.Und , cases.NoLower).String(charName)
 
-	err := loginHandlers.Authorize(r)
+	err = loginHandlers.Authorize(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -77,11 +87,10 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		
-		encoder := json.NewEncoder(w)
-		err = encoder.Encode(char)
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(char)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
 		}
 	}
 
