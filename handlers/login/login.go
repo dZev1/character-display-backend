@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dZev1/character-display/database"
-	"github.com/dZev1/character-display/utils"
+	"character-display-server/database"
+	"character-display-server/utils"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	var err int
-	if r.Method != http.MethodPost {
-		err = http.StatusMethodNotAllowed
-		http.Error(w, "invalid method", err)
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
 	}
 
@@ -41,9 +41,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "invalid method", err)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
 	}
 
@@ -52,8 +51,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	
 	user, _ := database.GetUser(username)
 	if ok, _ := database.IsInDatabase(username); !ok || utils.CheckPasswordHash(user.HashedPassword, password) {
-		err := http.StatusUnauthorized
-		http.Error(w, "user not found", err)
+		http.Error(w, "user not found", http.StatusUnauthorized)
 		return
 	}
 
@@ -85,11 +83,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	if err := Authorize(r); err != nil {
-		er := http.StatusUnauthorized
-		http.Error(w, "unauthorized", er)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
 	}
+
+	if err := Authorize(r); err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name: "session_token",
 		Value: "",
@@ -119,15 +122,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func Protected(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "invalid method", err)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
 	}
 
 	if err := Authorize(r); err != nil {
-		er := http.StatusUnauthorized
-		http.Error(w,"unauthorized", er)
+		http.Error(w,"unauthorized", http.StatusUnauthorized)
 		return
 	}
 

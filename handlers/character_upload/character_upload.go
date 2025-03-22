@@ -8,13 +8,18 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/dZev1/character-display/database"
-	loginHandlers "github.com/dZev1/character-display/handlers/login"
-	"github.com/dZev1/character-display/utils"
+	"character-display-server/database"
+	loginHandlers "character-display-server/handlers/login"
+	"character-display-server/utils"
 )
 
 func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 	var err error
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
+		return
+	}
 
 	err = loginHandlers.Authorize(r)
 	if err != nil {
@@ -42,6 +47,11 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCharacters(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
+		return
+	}
+
 	field := r.FormValue("field")
 	value := r.FormValue("value")
 
@@ -68,6 +78,11 @@ func GetAllCharacters(w http.ResponseWriter, r *http.Request) {
 
 func EditCharacter(w http.ResponseWriter, r *http.Request) {
 	var err error
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
+		return
+	}
 	
 	username := r.FormValue("username")
 	charName := r.FormValue("char_name")
@@ -115,6 +130,11 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 
 func DeleteCharacter(w http.ResponseWriter, r *http.Request) {
 	var err error
+	
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "could not process form", http.StatusBadRequest)
+		return
+	}
 	
 	err = loginHandlers.Authorize(r)
 	if err != nil {

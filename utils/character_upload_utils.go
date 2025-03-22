@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dZev1/character-display/models"
+	"character-display-server/models"
 )
 
 func JsonToChar(charJSON string) (models.Character, error) {

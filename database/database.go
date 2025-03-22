@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dZev1/character-display/models"
-	"github.com/dZev1/character-display/utils"
+	"character-display-server/models"
+	"character-display-server/utils"
 
 	_ "github.com/lib/pq"
 )

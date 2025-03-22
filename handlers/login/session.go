@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/dZev1/character-display/database"
+	"character-display-server/database"
 )
 
 var AuthError = errors.New("Unauthorized")
