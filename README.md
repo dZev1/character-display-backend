@@ -5,6 +5,24 @@ Making a RESTful API just to learn how to use the net/http Go package.
 
 This API provides endpoints for user authentication and character management in a character display system.
 
+Characters that are uploaded to the system follow this structure:
+```
+{
+	"name": "Frost",
+	"race": "Dragon",
+	"stats": {
+		"vitality": 12,
+		"endurance": 12,
+		"mind": 12,
+		"strength": 12,
+		"dexterity": 0,
+		"intelligence": 12,
+		"faith": 0
+	},
+	"image": "https://picsum.photos/500"
+}
+```
+
 ## Authentication
 
 Some routes require authentication by a session_token. Users have to login to receive a session cookie (`session_token`) and a CSRF token cookie (`csrf_token`)
