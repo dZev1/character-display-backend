@@ -9,7 +9,6 @@ import (
 	"golang.org/x/text/language"
 
 	"character-display-server/database"
-	loginHandlers "character-display-server/handlers/login"
 	"character-display-server/utils"
 )
 
@@ -18,12 +17,6 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
-
-	err = loginHandlers.Authorize(r)
-	if err != nil {
-		http.Error(w,"unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -77,7 +70,6 @@ func GetAllCharacters(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditCharacter(w http.ResponseWriter, r *http.Request) {
-	var err error
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "could not process form", http.StatusBadRequest)
@@ -89,11 +81,6 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 
 	charName = cases.Title(language.Und , cases.NoLower).String(charName)
 
-	err = loginHandlers.Authorize(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
 
 	if r.Method == http.MethodGet {
 		char, err := database.GetCharacter(username, charName)
@@ -133,12 +120,6 @@ func DeleteCharacter(w http.ResponseWriter, r *http.Request) {
 	
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
-	
-	err = loginHandlers.Authorize(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 

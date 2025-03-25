@@ -88,11 +88,6 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Authorize(r); err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name: "session_token",
 		Value: "",
@@ -121,17 +116,3 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "logged out succesfully.")
 }
 
-func Protected(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
-
-	if err := Authorize(r); err != nil {
-		http.Error(w,"unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	username := r.FormValue("username")
-	fmt.Fprintf(w, "CSRF validation succesful. Welcome, %s", username)
-}
