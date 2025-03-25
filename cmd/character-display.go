@@ -12,12 +12,19 @@ import (
 
 func main() {
 	var err error
-	fmt.Println("starting server at http://localhost:8080/")
 
 	connStr, err := config.ReadConnStrEnv()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	
+	port, err := config.ReadPortEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
+	port = fmt.Sprintf(":%v", port) 
+	fmt.Printf("starting server at http://localhost%v/ \n", port)
 
 	err = database.InitDB(connStr)
 	if err != nil {
@@ -27,7 +34,7 @@ func main() {
 	
 	router := routes.SetupRouter()
 	
-	if err := http.ListenAndServe(":8080", router); err != nil {
+	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatal(err);
 	}
 	

@@ -47,11 +47,11 @@ func InsertCharacter(character models.Character, username string) error {
 	}
 	
 	query := `
-		INSERT INTO	characters(username, name, race, stats)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO	characters(username, name, race, stats, image)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 	
-	_, err = db.Exec(query, username, character.Name, character.Race, statsJSON.String())
+	_, err = db.Exec(query, username, character.Name, character.Race, statsJSON.String(), character.Image)
 	if err != nil {
 		return fmt.Errorf("could not execute statement: %v", err)
 	}
@@ -99,7 +99,7 @@ func GetUser(username string) (models.User, error) {
 }
 
 func GetAllCharacters() ([]models.Character, error) {
-	query := `SELECT name, race, stats FROM characters`
+	query := `SELECT name, race, stats, image FROM characters`
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -125,7 +125,7 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT name, race, stats
+		SELECT name, race, stats, image
 		FROM characters
 		WHERE %s = $1
 	`, field)
@@ -145,10 +145,10 @@ func GetCharacter(username, charName string) (models.Character, error) {
 	var ret models.Character
 	var statsJSON string
 	query := `
-		SELECT name, race, stats FROM characters
+		SELECT name, race, stats, image FROM characters
 		WHERE username = $1 AND name = $2
 	`
-	err := db.QueryRow(query, username, charName).Scan(&ret.Name, &ret.Race, &statsJSON)
+	err := db.QueryRow(query, username, charName).Scan(&ret.Name, &ret.Race, &statsJSON, &ret.Image)
 	if err != nil {
 		return ret, err
 	}
@@ -185,11 +185,11 @@ func UpdateCharacter(username string, character models.Character) error {
 
 	query := `
 		UPDATE characters
-		SET race = $1, stats = $2
-		WHERE username = $3 AND name = $4
+		SET race = $1, stats = $2, image = $3
+		WHERE username = $4 AND name = $5
 	`
 	
-	_, err = db.Exec(query, character.Race, statsJSON.String(), username, character.Name)
+	_, err = db.Exec(query, character.Race, statsJSON.String(), character.Image, username, character.Name)
 	if err != nil {
 		return fmt.Errorf("could not update character: %v", err)
 	}

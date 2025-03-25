@@ -3,7 +3,6 @@ package utils
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"character-display-server/models"
@@ -25,7 +24,7 @@ func GetUserCharacters(rows *sql.Rows) ([]models.Character, error) {
 		var char models.Character
 		var statsJSON string
 
-		err := rows.Scan(&char.Name, &char.Race, &statsJSON)
+		err := rows.Scan(&char.Name, &char.Race, &statsJSON, &char.Image)
 		if err != nil {
 			return userChars, err
 		}
@@ -35,8 +34,6 @@ func GetUserCharacters(rows *sql.Rows) ([]models.Character, error) {
 		if err != nil {
 			return userChars, err
 		}
-
-		fmt.Println(char.Name, char.Race, char.Stats)
 		userChars = append(userChars, char)
 	}
 

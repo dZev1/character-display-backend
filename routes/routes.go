@@ -9,11 +9,6 @@ import (
 func SetupRouter() *http.ServeMux {
 	router := http.NewServeMux()
 
-	
-	fs := http.FileServer(http.Dir("../frontend/public"))
-	router.Handle("/", fs)
-	router.Handle("/public", http.StripPrefix("/public/", fs))
-
 	router.HandleFunc("POST /register", loginHandlers.Register)
 	router.HandleFunc("POST /login", loginHandlers.Login)
 	router.HandleFunc("POST /logout", loginHandlers.Logout)
