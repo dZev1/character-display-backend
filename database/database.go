@@ -117,7 +117,6 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 		"username": true,
 		"name" : true,
 		"race":     true,
-		"class":    true,
 	}
 
 	if !allowedFields[field] {

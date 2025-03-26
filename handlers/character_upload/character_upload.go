@@ -40,15 +40,23 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCharacters(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
-
 	field := r.FormValue("field")
 	value := r.FormValue("value")
 
-	userChars, err := database.GetCharactersByField(field, value)
+	
+	var userChars interface{}
+	var err error
+
+	if field != "username" {
+		value = cases.Title(language.Und , cases.NoLower).String(value)
+	}
+
+	if field != "" && value != "" {
+		userChars, err = database.GetCharactersByField(field, value)
+	} else {
+		userChars, err = database.GetAllCharacters()
+	}
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -56,17 +64,6 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(userChars)
-}
-
-func GetAllCharacters(w http.ResponseWriter, r *http.Request) {
-	chars, err := database.GetAllCharacters()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(chars)
 }
 
 func EditCharacter(w http.ResponseWriter, r *http.Request) {

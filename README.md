@@ -145,7 +145,7 @@ http://<server-address>/
 #### **Get Characters**
 **Endpoint**: `GET /get_characters`
 
-**Description**: Retrieves characters based on a specified field and value.
+**Description**: Retrieves characters based on a specified field and value. If field or value is not specified, retrieves all characters in the system.
 
 **Request Parameters**:
    - `field`(string, required)
@@ -154,15 +154,3 @@ http://<server-address>/
 **Response**:
    - `200 OK`: Returns a JSON array of matching characters.
    - `400 Bad Request`: Invalid data.
-
----
-
-#### **Get All Characters**
-**Endpoint**: `GET /get_all_characters`
-
-**Description**: Retrieves all characters in the system.
-
-**Response**:
-   - `200 OK`: Returns a JSON array of all characters.
-   - `400 Bad Request`: Request could not be processed.
-

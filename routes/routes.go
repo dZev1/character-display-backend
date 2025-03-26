@@ -13,7 +13,6 @@ func SetupRouter() *http.ServeMux {
 	router.HandleFunc("POST /register", loginHandlers.Register)
 	router.HandleFunc("POST /login", loginHandlers.Login)
 	router.HandleFunc("GET /get_characters", characterHandlers.GetCharacters)
-	router.HandleFunc("GET /get_all_characters", characterHandlers.GetAllCharacters)
 	
 	router.HandleFunc("POST /logout", middleware.Protected(loginHandlers.Logout))
 	router.HandleFunc("POST /upload_character", middleware.Protected(characterHandlers.UploadCharacter))
