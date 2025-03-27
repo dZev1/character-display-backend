@@ -151,6 +151,11 @@ http://<server-address>/
    - `field`(string, required)
    - `value` (string, required)
 
+**Valid `field` parameter values:
+   - `"name"`
+   - `"username"`
+   - `"race"`
+
 **Response**:
    - `200 OK`: Returns a JSON array of matching characters.
    - `400 Bad Request`: Invalid data.
