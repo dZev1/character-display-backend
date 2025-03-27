@@ -151,7 +151,7 @@ http://<server-address>/
    - `field`(string, required)
    - `value` (string, required)
 
-**Valid `field` parameter values:
+**Valid `field` parameter values**:
    - `"name"`
    - `"username"`
    - `"race"`

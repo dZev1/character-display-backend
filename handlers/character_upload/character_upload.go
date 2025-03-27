@@ -10,6 +10,7 @@ import (
 
 	"character-display-server/database"
 	"character-display-server/utils"
+	"character-display-server/middleware"
 )
 
 func UploadCharacter(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +41,7 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCharacters(w http.ResponseWriter, r *http.Request) {
+	middleware.EnableCors(&w)
 	field := r.FormValue("field")
 	value := r.FormValue("value")
 
