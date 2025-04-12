@@ -41,11 +41,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
-
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	
@@ -83,10 +78,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "could not process form", http.StatusBadRequest)
-		return
-	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name: "session_token",
