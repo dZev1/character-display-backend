@@ -1,4 +1,5 @@
 # Character Display Server API
+
 Making a RESTful API just to learn how to use the net/http Go package.
 
 ## Overview
@@ -6,20 +7,21 @@ Making a RESTful API just to learn how to use the net/http Go package.
 This API provides endpoints for user authentication and character management in a character display system.
 
 Characters that are uploaded to the system follow this structure:
-```
+
+```()
 {
-	"name": "Frost",
-	"race": "Dragon",
-	"stats": {
-		"vitality": 12,
-		"endurance": 12,
-		"mind": 12,
-		"strength": 12,
-		"dexterity": 0,
-		"intelligence": 12,
-		"faith": 0
-	},
-	"image": "https://picsum.photos/500"
+ "name": "Frost",
+ "race": "Dragon",
+ "stats": {
+  "vitality": 12,
+  "endurance": 12,
+  "mind": 12,
+  "strength": 12,
+  "dexterity": 0,
+  "intelligence": 12,
+  "faith": 0
+ },
+ "image": "https://picsum.photos/500"
 }
 ```
 
@@ -31,131 +33,154 @@ Some routes require authentication by a session_token. Users have to login to re
 
 ## Base URL
 
-```
+```()
 http://<server-address>/
 ```
 
-## **Endpoints** 
+## **Endpoints**
 
 ### **1. Authentication**
 
 #### **Register**
+
 **Endpoint**: `POST /register`
 
 **Description**: Registers a new user.
 
 **Request Parameters**:
-   - `username`(string, required): The username (minimum 3 characters).
-   - `password`(string, required): The password (minimum 8 characters).
+
+- `username`(string, required): The username (minimum 3 characters).
+- `password`(string, required): The password (minimum 8 characters).
 
 **Response**:
-   - `200 OK`: User registered successfully.
-   - `406 Not Acceptable`: Invalid username or password.
-   - `409 Conflict`: User already exists.
-   - `500 Internal Server Error`: Could not insert user.
+
+- `200 OK`: User registered successfully.
+- `406 Not Acceptable`: Invalid username or password.
+- `409 Conflict`: User already exists.
+- `500 Internal Server Error`: Could not insert user.
 
 ---
 
 #### **Login**
+
 **Endpoint**: `POST /login`
 
 **Description**: Registers a new user.
 
 **Request Parameters**:
-   - `username`(string, required)
-   - `password`(string, required)
+
+- `username`(string, required)
+- `password`(string, required)
 **Response**:
-   - `200 OK`: Login successful, session and CSRF tokens set in cookies.
-   - `401 Unauthorized`: User not authorized.
-   - `400 Bad Request`: Request could not be processed.
+- `200 OK`: Login successful, session and CSRF tokens set in cookies.
+- `401 Unauthorized`: User not authorized.
+- `400 Bad Request`: Request could not be processed.
 
 **Generated Cookies**:
-   - `session_token` (HTTPOnly, valid for 24hs)
-   - `csrf_token`
+
+- `session_token` (HTTPOnly, valid for 24hs)
+- `csrf_token`
 
 ---
 
 #### **Logout** *(Requires Authentication)*
+
 **Endpoint**: `POST /logout`
 
 **Description**: Logs out a user by invalidating session and CSRF tokens.
 
 **Request Parameters**:
-   - `username`(string, required)
+
+- `username`(string, required)
 
 **Response**:
-   - `200 OK`: Logged out succesfully.
-   - `401 Unauthorized`: Invalid credentials.
-   - `400 Bad Request`: Request could not be processed.
+
+- `200 OK`: Logged out succesfully.
+- `401 Unauthorized`: Invalid credentials.
+- `400 Bad Request`: Request could not be processed.
 
 ---
 
 ### **2. Character Management**
 
 #### **Upload Character** *(Requires authentication)*
+
 **Endpoint**: `POST /upload_character`
 
 **Description**: Uploads a new character to the system.
 
 **Request Parameters**:
-   - `username`(string, required)
-   - `char_json`(JSON, required): Character data.
+
+- `username`(string, required)
+- `char_json`(JSON, required): Character data.
 
 **Response**:
-   - `200 OK`: Character added successfully.
-   - `400 Bad Request`: Invalid data.
-   - `401 Unauthorized`: User not authorized.
+
+- `200 OK`: Character added successfully.
+- `400 Bad Request`: Invalid data.
+- `401 Unauthorized`: User not authorized.
 
 ---
 
 #### **Edit Character** *(Requires authentication)*
+
 **Endpoints**:
-   - `GET /edit_character`: Retrieves a character.
-   - `PUT /edit_character`: Updates a character.
+
+- `GET /edit_character`: Retrieves a character.
+- `PUT /edit_character`: Updates a character.
 
 **Request Parameters**:
-   - `username`(string, required)
-   - `char_name` (string, required)
-   - `char_json`(string, required for PUT): Updated character data.
+
+- `username`(string, required)
+- `char_name` (string, required)
+- `char_json`(string, required for PUT): Updated character data.
 
 **Response**:
-   - `200 OK`: Character added successfully.
-   - `400 Bad Request`: Invalid data.
-   - `401 Unauthorized`: User not authorized.
-   - `409 Conflict`: Character not found (GET Request).
+
+- `200 OK`: Character added successfully.
+- `400 Bad Request`: Invalid data.
+- `401 Unauthorized`: User not authorized.
+- `409 Conflict`: Character not found (GET Request).
 
 ---
 
 #### **Delete Character** *(Requires authentication)*
+
 **Endpoint**: `DELETE /delete_character`
 
 **Description**: Deletes a character
 
 **Request Parameters**:
-   - `username`(string, required)
-   - `char_name` (string, required)
+
+- `username`(string, required)
+- `char_name` (string, required)
 
 **Response**:
-   - `200 OK`: Character deleted succesfully.
-   - `400 Bad Request`: Invalid data.
-   - `401 Unauthorized`: User not authorized.
+
+- `200 OK`: Character deleted succesfully.
+- `400 Bad Request`: Invalid data.
+- `401 Unauthorized`: User not authorized.
 
 ---
 
 #### **Get Characters**
+
 **Endpoint**: `GET /get_characters`
 
 **Description**: Retrieves characters based on a specified field and value. If field or value is not specified, retrieves all characters in the system.
 
 **Request Parameters**:
-   - `field`(string, required)
-   - `value` (string, required)
+
+- `field`(string, required)
+- `value` (string, required)
 
 **Valid `field` parameter values**:
-   - `"name"`
-   - `"username"`
-   - `"race"`
+
+- `"name"`
+- `"username"`
+- `"race"`
 
 **Response**:
-   - `200 OK`: Returns a JSON array of matching characters.
-   - `400 Bad Request`: Invalid data.
+
+- `200 OK`: Returns a JSON array of matching characters.
+- `400 Bad Request`: Invalid data.
