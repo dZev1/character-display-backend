@@ -44,7 +44,7 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("value")
 
 	
-	var userChars interface{}
+	var userChars any
 	var err error
 
 	if field != "username" {
