@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/charmbracelet/log"
 	"character-display-server/config"
 	"character-display-server/database"
+	"character-display-server/middleware"
 	"character-display-server/routes"
+
+	"github.com/charmbracelet/log"
 )
 
 func main() {
@@ -18,13 +20,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	
 	port, err := config.ReadPortEnv()
 	if err != nil {
 		log.Fatal(err)
 	}
 	port = fmt.Sprintf(":%v", port) 
-	fmt.Printf("starting server at http://localhost%v/ \n", port)
+	fmt.Printf("starting server at http://localhost%v/\n", port)
 
 	err = database.InitDB(connStr)
 	if err != nil {
@@ -34,8 +35,7 @@ func main() {
 	
 	router := routes.SetupRouter()
 	
-	if err := http.ListenAndServe(port, router); err != nil {
+	if err := http.ListenAndServe(port, middleware.CORSMiddleware(router)); err != nil {
 		log.Fatal(err);
 	}
-	
 }
