@@ -9,7 +9,6 @@ import (
 
 var ErrAuth = errors.New("Unauthorized")
 
-
 func Authorize(r *http.Request) error {
 	username := r.FormValue("username")
 	user, ok := database.GetUser(username)

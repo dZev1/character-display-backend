@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"character-display-server/models"
-	"character-display-server/utils"
 
 	_ "github.com/lib/pq"
 )
@@ -45,12 +44,12 @@ func InsertCharacter(character models.Character, username string) error {
 	if err != nil {
 		return fmt.Errorf("could not encode json: %v", err)
 	}
-	
+
 	query := `
 		INSERT INTO	characters(username, name, race, stats, image)
 		VALUES ($1, $2, $3, $4, $5)
 	`
-	
+
 	_, err = db.Exec(query, username, character.Name, character.Race, statsJSON.String(), character.Image)
 	if err != nil {
 		return fmt.Errorf("could not execute statement: %v", err)
@@ -99,7 +98,10 @@ func GetUser(username string) (models.User, error) {
 }
 
 func GetAllCharacters() ([]models.Character, error) {
-	query := `SELECT name, race, stats, image FROM characters`
+	query := `
+		SELECT username, name, race, stats, image
+		FROM characters
+	`
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -107,15 +109,15 @@ func GetAllCharacters() ([]models.Character, error) {
 	}
 	defer rows.Close()
 
-	userChars, err := utils.GetUserCharacters(rows)
+	userChars, err := GetUserCharacters(rows)
 
-	return userChars, err 
+	return userChars, err
 }
 
 func GetCharactersByField(field, value string) ([]models.Character, error) {
 	allowedFields := map[string]bool{
 		"username": true,
-		"name" : true,
+		"name":     true,
 		"race":     true,
 	}
 
@@ -124,7 +126,7 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT name, race, stats, image
+		SELECT username, name, race, stats, image
 		FROM characters
 		WHERE %s = $1
 	`, field)
@@ -135,19 +137,20 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 	}
 	defer rows.Close()
 
-	userChars, err := utils.GetUserCharacters(rows)
+	userChars, err := GetUserCharacters(rows)
 
-	return userChars, err 
+	return userChars, err
 }
 
 func GetCharacter(username, charName string) (models.Character, error) {
 	var ret models.Character
 	var statsJSON string
 	query := `
-		SELECT name, race, stats, image FROM characters
+		SELECT username, name, race, stats, image
+		FROM characters
 		WHERE username = $1 AND name = $2
 	`
-	err := db.QueryRow(query, username, charName).Scan(&ret.Name, &ret.Race, &statsJSON, &ret.Image)
+	err := db.QueryRow(query, username, charName).Scan(&ret.Username, &ret.Name, &ret.Race, &statsJSON, &ret.Image)
 	if err != nil {
 		return ret, err
 	}
@@ -187,12 +190,12 @@ func UpdateCharacter(username string, character models.Character) error {
 		SET race = $1, stats = $2, image = $3
 		WHERE username = $4 AND name = $5
 	`
-	
+
 	_, err = db.Exec(query, character.Race, statsJSON.String(), character.Image, username, character.Name)
 	if err != nil {
 		return fmt.Errorf("could not update character: %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -204,4 +207,31 @@ func IsInDatabase(username string) (bool, error) {
 		return false, fmt.Errorf("error checking if user exists: %v", err)
 	}
 	return exists, nil
+}
+
+func GetUserCharacters(rows *sql.Rows) ([]models.Character, error) {
+	var userChars []models.Character
+
+	for rows.Next() {
+		var char models.Character
+		var statsJSON string
+
+		err := rows.Scan(&char.Username, &char.Name, &char.Race, &statsJSON, &char.Image)
+		if err != nil {
+			return userChars, err
+		}
+
+		decoder := json.NewDecoder(strings.NewReader(statsJSON))
+		err = decoder.Decode(&char.Stats)
+		if err != nil {
+			return userChars, err
+		}
+		userChars = append(userChars, char)
+	}
+
+	if err := rows.Err(); err != nil {
+		return userChars, err
+	}
+
+	return userChars, nil
 }

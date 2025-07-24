@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	port = fmt.Sprintf(":%v", port) 
+	port = fmt.Sprintf(":%v", port)
 	fmt.Printf("starting server at http://localhost%v/\n", port)
 
 	err = database.InitDB(connStr)
@@ -32,10 +32,10 @@ func main() {
 		log.Fatal(err)
 	}
 	defer database.CloseDB()
-	
+
 	router := routes.SetupRouter()
-	
+
 	if err := http.ListenAndServe(port, middleware.CORSMiddleware(router)); err != nil {
-		log.Fatal(err);
+		log.Fatal(err)
 	}
 }

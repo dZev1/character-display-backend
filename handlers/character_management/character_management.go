@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
 	"character-display-server/database"
-	"character-display-server/utils"
+	"character-display-server/models"
 )
 
 func UploadCharacter(w http.ResponseWriter, r *http.Request) {
@@ -22,14 +23,13 @@ func UploadCharacter(w http.ResponseWriter, r *http.Request) {
 
 	username := r.FormValue("username")
 	charJSON := r.FormValue("char_json")
-		
-	char, err := utils.JsonToChar(charJSON)
+
+	char, err := JsonToChar(charJSON)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	char.Name = cases.Title(language.Und , cases.NoLower).String(char.Name)
-	
+	char.Name = cases.Title(language.Und, cases.NoLower).String(char.Name)
 
 	err = database.InsertCharacter(char, username)
 	if err != nil {
@@ -43,12 +43,11 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 	field := r.FormValue("field")
 	value := r.FormValue("value")
 
-	
 	var userChars any
 	var err error
 
 	if field != "username" {
-		value = cases.Title(language.Und , cases.NoLower).String(value)
+		value = cases.Title(language.Und, cases.NoLower).String(value)
 	}
 
 	if field != "" && value != "" {
@@ -63,7 +62,7 @@ func GetCharacters(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(userChars)
+	json.NewEncoder(w).Encode(userChars)
 }
 
 func EditCharacter(w http.ResponseWriter, r *http.Request) {
@@ -72,12 +71,11 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
 	}
-	
+
 	username := r.FormValue("username")
 	charName := r.FormValue("char_name")
 
-	charName = cases.Title(language.Und , cases.NoLower).String(charName)
-
+	charName = cases.Title(language.Und, cases.NoLower).String(charName)
 
 	if r.Method == http.MethodGet {
 		char, err := database.GetCharacter(username, charName)
@@ -85,7 +83,7 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(char)
 		if err != nil {
@@ -95,9 +93,9 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPut {
 		charJSON := r.FormValue("char_json")
-		
-		char, err := utils.JsonToChar(charJSON)
-		char.Name = cases.Title(language.Und , cases.NoLower).String(char.Name)
+
+		char, err := JsonToChar(charJSON)
+		char.Name = cases.Title(language.Und, cases.NoLower).String(char.Name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -114,7 +112,7 @@ func EditCharacter(w http.ResponseWriter, r *http.Request) {
 
 func DeleteCharacter(w http.ResponseWriter, r *http.Request) {
 	var err error
-	
+
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "could not process form", http.StatusBadRequest)
 		return
@@ -123,8 +121,8 @@ func DeleteCharacter(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	charName := r.FormValue("char_name")
 
-	charName = cases.Title(language.Und , cases.NoLower).String(charName)
-	
+	charName = cases.Title(language.Und, cases.NoLower).String(charName)
+
 	err = database.DeleteCharacter(username, charName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -134,3 +132,11 @@ func DeleteCharacter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "character %v deleted successfully", charName)
 }
 
+func JsonToChar(charJSON string) (models.Character, error) {
+	var char models.Character
+	decoder := json.NewDecoder(strings.NewReader(charJSON))
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(&char)
+	return char, err
+}

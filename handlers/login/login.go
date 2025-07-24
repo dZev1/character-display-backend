@@ -25,7 +25,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid username/password", err)
 		return
 	}
-	
+
 	if ok, _ := database.IsInDatabase(username); ok {
 		err := http.StatusConflict
 		http.Error(w, "user already exists", err)
@@ -43,7 +43,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	
+
 	user, _ := database.GetUser(username)
 	if ok, _ := database.IsInDatabase(username); !ok || utils.CheckPasswordHash(user.HashedPassword, password) {
 		http.Error(w, "user not found", http.StatusUnauthorized)
@@ -53,15 +53,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	sessionToken := utils.GenerateToken(32)
 	csrfToken := utils.GenerateToken(32)
 	http.SetCookie(w, &http.Cookie{
-		Name: "session_token",
-		Value: sessionToken,
-		Expires: time.Now().Add(24 * time.Hour),
+		Name:     "session_token",
+		Value:    sessionToken,
+		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "csrf_token",
-		Value: csrfToken,
+		Name:     "csrf_token",
+		Value:    csrfToken,
 		HttpOnly: false,
 	})
 
@@ -80,24 +80,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Logout(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "session_token",
-		Value: "",
-		Expires: time.Now().Add(-time.Hour),
+		Name:     "session_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
 		HttpOnly: true,
 	})
 	http.SetCookie(w, &http.Cookie{
-		Name: "csrf_token",
-		Value: "",
-		Expires: time.Now().Add(-time.Hour),
+		Name:     "csrf_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
 		HttpOnly: false,
 	})
 
 	username := r.FormValue("username")
 	user, _ := database.GetUser(username)
-	
+
 	user.CSRFToken = ""
 	user.SessionToken = ""
-	
+
 	err := database.UpdateCookies(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -106,4 +106,3 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintln(w, "logged out succesfully.")
 }
-

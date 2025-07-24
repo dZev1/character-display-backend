@@ -1,10 +1,11 @@
 package models
 
 type Character struct {
-	Name  string `json:"name"`
-	Race  string `json:"race"`
-	Stats Stats  `json:"stats"`
-	Image string `json:"image"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Race     string `json:"race"`
+	Stats    Stats  `json:"stats"`
+	Image    string `json:"image"`
 }
 
 type Stats struct {
