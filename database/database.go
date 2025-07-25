@@ -14,6 +14,8 @@ import (
 
 var db *sql.DB
 
+const characterSelectionFields = `username, name, race, stats, image`
+
 func InitDB(connStr string) error {
 	var err error
 	db, err = sql.Open("postgres", connStr)
@@ -98,10 +100,10 @@ func GetUser(username string) (models.User, error) {
 }
 
 func GetAllCharacters() ([]models.Character, error) {
-	query := `
-		SELECT username, name, race, stats, image
+	query := fmt.Sprintf(`
+		SELECT %s
 		FROM characters
-	`
+	`, characterSelectionFields)
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -126,10 +128,10 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT username, name, race, stats, image
+		SELECT %s
 		FROM characters
 		WHERE %s = $1
-	`, field)
+	`, characterSelectionFields, field)
 
 	rows, err := db.Query(query, value)
 	if err != nil {
@@ -145,11 +147,11 @@ func GetCharactersByField(field, value string) ([]models.Character, error) {
 func GetCharacter(username, charName string) (models.Character, error) {
 	var ret models.Character
 	var statsJSON string
-	query := `
-		SELECT username, name, race, stats, image
+	query := fmt.Sprintf(`
+		SELECT %s
 		FROM characters
 		WHERE username = $1 AND name = $2
-	`
+	`, characterSelectionFields)
 	err := db.QueryRow(query, username, charName).Scan(&ret.Username, &ret.Name, &ret.Race, &statsJSON, &ret.Image)
 	if err != nil {
 		return ret, err
