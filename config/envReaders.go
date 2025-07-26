@@ -15,7 +15,7 @@ func ReadConnStrEnv() (string, error) {
 	envPGUser := envFile["PGUSER"]
 	envPGPassword := envFile["PGPASSWORD"]
 
-	connStr := fmt.Sprintf("postgresql://%v:%v@ep-plain-snowflake-acxitlrh-pooler.sa-east-1.aws.neon.tech/myDB?sslmode=require", envPGUser, envPGPassword)
+	connStr := fmt.Sprintf("postgresql://%s:%s@ep-plain-snowflake-acxitlrh-pooler.sa-east-1.aws.neon.tech/myDB?sslmode=require", envPGUser, envPGPassword)
 	return connStr, nil
 }
 

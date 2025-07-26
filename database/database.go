@@ -47,10 +47,10 @@ func InsertCharacter(character models.Character, username string) error {
 		return fmt.Errorf("could not encode json: %v", err)
 	}
 
-	query := `
-		INSERT INTO	characters(username, name, race, stats, image)
+	query := fmt.Sprintf(`
+		INSERT INTO	characters(%s)
 		VALUES ($1, $2, $3, $4, $5)
-	`
+	`, characterSelectionFields)
 
 	_, err = db.Exec(query, username, character.Name, character.Race, statsJSON.String(), character.Image)
 	if err != nil {
